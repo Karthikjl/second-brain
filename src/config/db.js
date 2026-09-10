@@ -2,16 +2,21 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-const dbDir = path.resolve(__dirname, '../../db');
-if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
-}
-
 const dbPath = process.env.SQLITE_DB_PATH
     ? path.resolve(process.env.SQLITE_DB_PATH)
-    : path.join(dbDir, 'second_brain.sqlite');
+    : path.resolve(process.cwd(), 'db', 'second_brain.sqlite');
+
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) {
+    try {
+        fs.mkdirSync(dbDir, { recursive: true });
+    } catch (err) {
+        console.warn('Notice: Could not create dbDir, proceeding if exists:', err.message);
+    }
+}
 
 const db = new Database(dbPath);
+
 
 // Enable WAL mode & foreign keys for high performance and integrity
 db.pragma('journal_mode = WAL');
