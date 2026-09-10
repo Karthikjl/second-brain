@@ -11,7 +11,7 @@ async function listCalendarEvents(profileId, { start, end } = {}) {
     }
     if (end) {
         sql += ' AND starts_at <= ?';
-        params.push(end);
+        params.push(end.length === 10 ? `${end}T23:59:59.999Z` : end);
     }
 
     sql += ' ORDER BY starts_at ASC';

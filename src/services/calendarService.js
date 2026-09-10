@@ -53,10 +53,11 @@ async function getRemindersForRange(profileId, startDate, endDate) {
 }
 
 async function getCalendarData(profileId, startDate, endDate) {
-    const tasks = await getTasksForRange(profileId, startDate, endDate);
-    const habitLogs = await getHabitLogsForRange(profileId, startDate, endDate);
-    const calendarEvents = await calendarEventService.getEventsForRange(profileId, startDate, endDate);
-    const reminders = await getRemindersForRange(profileId, startDate, endDate);
+    const endBound = endDate.length === 10 ? `${endDate}T23:59:59.999Z` : endDate;
+    const tasks = await getTasksForRange(profileId, startDate, endBound);
+    const habitLogs = await getHabitLogsForRange(profileId, startDate.slice(0, 10), endDate.slice(0, 10));
+    const calendarEvents = await calendarEventService.getEventsForRange(profileId, startDate, endBound);
+    const reminders = await getRemindersForRange(profileId, startDate, endBound);
 
     return { tasks, habitLogs, calendarEvents, reminders };
 }

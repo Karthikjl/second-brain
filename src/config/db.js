@@ -163,6 +163,29 @@ function initSchema() {
             locked_until TEXT
         );
 
+        -- AI SESSIONS
+        CREATE TABLE IF NOT EXISTS ai_sessions (
+            id TEXT PRIMARY KEY,
+            profile_id TEXT NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+            title TEXT NOT NULL,
+            provider TEXT NOT NULL,
+            model TEXT NOT NULL,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+
+        -- AI MESSAGES
+        CREATE TABLE IF NOT EXISTS ai_messages (
+            id TEXT PRIMARY KEY,
+            session_id TEXT NOT NULL REFERENCES ai_sessions(id) ON DELETE CASCADE,
+            profile_id TEXT NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+            role TEXT NOT NULL,
+            content TEXT,
+            tool_calls TEXT,
+            tool_call_id TEXT,
+            created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+
         -- Ensure default system_settings row exists
         INSERT OR IGNORE INTO system_settings (id, self_signup_enabled, rate_limit_enabled, rate_limit_window_minutes, rate_limit_max_attempts)
         VALUES (1, 1, 1, 15, 20);

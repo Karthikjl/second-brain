@@ -3,6 +3,12 @@ node_modules/
 .pnp
 .pnp.js
 
+# Next.js Build Outputs
+.next/
+out/
+build/
+dist/
+
 # Environment variables
 .env
 .env.*

@@ -26,6 +26,8 @@ async function listHabits(req, res) {
                 this_week_count: weeklyCount,
                 weekly_goal_met: weeklyCount >= habit.target_per_week,
                 streak,
+                current_streak: streak,
+                logs: Array.from(dateSet),
             };
         });
 
@@ -57,6 +59,8 @@ async function getHabit(req, res) {
                 this_week_count: weeklyCount,
                 weekly_goal_met: weeklyCount >= habit.target_per_week,
                 streak,
+                current_streak: streak,
+                logs: Array.from(dateSet),
             },
         });
     } catch (err) {
@@ -145,7 +149,7 @@ async function logCompletion(req, res) {
             return res.status(404).json({ error: 'Habit not found.' });
         }
 
-        let date = req.body.date;
+        let date = req.body.date || req.body.log_date;
         if (!date) {
             const settings = await settingsService.getSettings(req.profileId);
             date = getLocalDateString(settings.timezone);
@@ -158,11 +162,6 @@ async function logCompletion(req, res) {
         }
 
         const parsedDate = new Date(date + 'T00:00:00Z');
-        // isNaN alone isn't enough - JS silently rolls invalid calendar dates
-        // like Feb 30 into a different valid date (e.g. Mar 2) instead of
-        // rejecting them. Re-serializing and comparing back to the original
-        // string catches this: a genuinely valid date round-trips exactly,
-        // an overflowed one won't match what was typed.
         if (isNaN(parsedDate.getTime()) || parsedDate.toISOString().split('T')[0] !== date) {
             return res.status(400).json({ error: 'Invalid date value.' });
         }
@@ -174,11 +173,9 @@ async function logCompletion(req, res) {
             return res.status(400).json({ error: 'Date cannot be more than one year in the future.' });
         }
 
-        // Check date is not too far in the past (e.g., before habit creation)
-        // This is a reasonable boundary - logs before habit creation don't make sense
-        // Compare just the date portion, not the full timestamp
-        const habitCreatedDate = habit.created_at.split('T')[0]; // Get YYYY-MM-DD portion
-        if (date < habitCreatedDate) {
+        // Check date is not before habit creation date (compare YYYY-MM-DD substring)
+        const habitCreatedDate = habit.created_at ? habit.created_at.substring(0, 10) : '';
+        if (habitCreatedDate && date < habitCreatedDate) {
             return res.status(400).json({ error: 'Date cannot be before habit creation date.' });
         }
 

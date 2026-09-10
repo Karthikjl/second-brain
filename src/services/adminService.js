@@ -224,10 +224,13 @@ function getAllUsers() {
         if (l.identifier) lockedMap.set(l.identifier.toLowerCase(), l);
     }
 
+    const firstUserId = users.length > 0 ? users[0].id : null;
+
     return users.map(u => {
         const userLocked = lockedMap.get(u.email.toLowerCase()) || (u.username ? lockedMap.get(u.username.toLowerCase()) : null);
         return {
             ...u,
+            is_first_user: u.id === firstUserId,
             must_reset_password: Boolean(u.must_reset_password),
             is_locked: Boolean(userLocked),
             locked_remaining: userLocked?.minutes_remaining || 0
@@ -285,26 +288,51 @@ function adminUpdateUser(userId, fields) {
     const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
     if (!user) throw new Error('User not found.');
 
-    const newRole = fields.role !== undefined ? fields.role : user.role;
-    const newStatus = fields.status !== undefined ? fields.status : user.status;
+    const firstUser = db.prepare('SELECT id FROM users ORDER BY created_at ASC LIMIT 1').get();
+    const isFirstUser = firstUser && firstUser.id === userId;
+
+    let newRole = fields.role !== undefined ? fields.role : user.role;
+    let newStatus = fields.status !== undefined ? fields.status : user.status;
+
+    if (isFirstUser) {
+        if (fields.role && fields.role !== 'ADMIN') {
+            throw new Error('The Primary Super Admin account role cannot be changed.');
+        }
+        if (fields.status && fields.status !== 'active') {
+            throw new Error('The Primary Super Admin account cannot be deactivated.');
+        }
+        newRole = 'ADMIN';
+        newStatus = 'active';
+    }
+
     const newMustReset = fields.must_reset_password !== undefined ? (fields.must_reset_password ? 1 : 0) : user.must_reset_password;
     const newName = fields.name !== undefined ? fields.name.trim() : user.name;
+    const newUsername = fields.username !== undefined ? fields.username.trim().toLowerCase() : user.username;
+    const newEmail = fields.email !== undefined ? fields.email.trim().toLowerCase() : user.email;
+
+    if (newEmail !== user.email || newUsername !== user.username) {
+        const conflict = db.prepare('SELECT id FROM users WHERE (LOWER(email) = ? OR LOWER(username) = ?) AND id != ?').get(newEmail, newUsername, userId);
+        if (conflict) {
+            throw new Error('Email or username is already taken by another user.');
+        }
+    }
 
     const stmt = db.prepare(`
         UPDATE users
-        SET role = ?, status = ?, must_reset_password = ?, name = ?
+        SET role = ?, status = ?, must_reset_password = ?, name = ?, username = ?, email = ?
         WHERE id = ?
     `);
-    stmt.run(newRole, newStatus, newMustReset, newName, userId);
+    stmt.run(newRole, newStatus, newMustReset, newName, newUsername, newEmail, userId);
 
     return {
         id: user.id,
         name: newName,
-        username: user.username,
-        email: user.email,
+        username: newUsername,
+        email: newEmail,
         role: newRole,
         status: newStatus,
-        must_reset_password: Boolean(newMustReset)
+        must_reset_password: Boolean(newMustReset),
+        is_first_user: Boolean(isFirstUser)
     };
 }
 
@@ -325,6 +353,11 @@ async function adminResetPassword(userId, newPassword) {
 }
 
 function adminDeleteUser(adminUserId, targetUserId) {
+    const firstUser = db.prepare('SELECT id FROM users ORDER BY created_at ASC LIMIT 1').get();
+    if (firstUser && firstUser.id === targetUserId) {
+        throw new Error('The Primary Super Admin account cannot be deleted.');
+    }
+
     if (adminUserId === targetUserId) {
         throw new Error('Cannot delete your own admin account.');
     }

@@ -5,7 +5,7 @@ const { issueTokenPair } = require('./authController');
 async function getSettings(req, res) {
     try {
         const settings = adminService.getAdminSettings();
-        return res.status(200).json(settings);
+        return res.status(200).json({ settings, ...settings });
     } catch (err) {
         console.error('getSettings error:', err);
         return res.status(500).json({ error: 'Failed to fetch admin settings.' });
@@ -87,7 +87,7 @@ async function updateUser(req, res) {
 
 async function resetPassword(req, res) {
     const { id } = req.params;
-    const { newPassword } = req.body;
+    const newPassword = (req.body?.newPassword || req.body?.tempPassword || req.body?.password || '').trim();
 
     if (!newPassword || newPassword.length < 8) {
         return res.status(400).json({ error: 'New password must be at least 8 characters.' });

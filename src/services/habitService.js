@@ -119,27 +119,29 @@ function weeklyCountForDates(dateSet, timeZone, weekStartsOn, now = new Date()) 
 }
 
 function computeStreakForDates(dateSet, targetPerWeek, timeZone, weekStartsOn, now = new Date()) {
+    if (!dateSet || dateSet.size === 0) return 0;
+
+    const tz = timeZone || 'UTC';
+    const todayStr = getLocalDateString(tz, now);
     let streak = 0;
-    let weekStartStr = getLocalWeekStartDateString(timeZone, weekStartsOn, now);
-    const todayStr = getLocalDateString(timeZone, now);
+    let checkDateStr = todayStr;
 
-    for (let i = 0; i < 52; i++) {
-        const weekEndStr = addDaysToDateString(weekStartStr, 6);
-        const count = countInWeek(dateSet, weekStartStr);
-
-        if (i === 0) {
-            const daysLeftInWeek = daysBetween(todayStr, weekEndStr) + 1;
-            const possibleTotal = count + daysLeftInWeek;
-            if (possibleTotal < targetPerWeek && count < targetPerWeek) {
-                break;
-            }
+    if (dateSet.has(todayStr)) {
+        streak = 1;
+        checkDateStr = addDaysToDateString(todayStr, -1);
+    } else {
+        const yesterdayStr = addDaysToDateString(todayStr, -1);
+        if (dateSet.has(yesterdayStr)) {
+            streak = 1;
+            checkDateStr = addDaysToDateString(yesterdayStr, -1);
         } else {
-            if (count < targetPerWeek) break;
+            return 0;
         }
+    }
 
-        if (count >= targetPerWeek) streak++;
-
-        weekStartStr = addDaysToDateString(weekStartStr, -7);
+    while (dateSet.has(checkDateStr)) {
+        streak++;
+        checkDateStr = addDaysToDateString(checkDateStr, -1);
     }
 
     return streak;

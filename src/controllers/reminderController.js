@@ -125,6 +125,31 @@ async function updateReminder(req, res) {
     }
 }
 
+async function snoozeReminder(req, res) {
+    const minutes = Number(req.body?.minutes) || 15;
+    try {
+        const reminder = await reminderService.getReminderById(req.profileId, req.params.id);
+        if (!reminder) {
+            return res.status(404).json({ error: 'Reminder not found.' });
+        }
+
+        const baseTime = new Date(reminder.remind_at).getTime() > Date.now()
+            ? new Date(reminder.remind_at).getTime()
+            : Date.now();
+        const newRemindAt = new Date(baseTime + minutes * 60 * 1000).toISOString();
+
+        const updated = await reminderService.updateReminder(req.profileId, req.params.id, {
+            remind_at: newRemindAt,
+            is_done: 0,
+        });
+
+        return res.status(200).json({ reminder: updated });
+    } catch (err) {
+        console.error('Snooze reminder error:', err);
+        return res.status(500).json({ error: 'Failed to snooze reminder.' });
+    }
+}
+
 async function deleteReminder(req, res) {
     try {
         const reminder = await reminderService.softDeleteReminder(req.profileId, req.params.id);
@@ -139,4 +164,4 @@ async function deleteReminder(req, res) {
     }
 }
 
-module.exports = { listReminders, getReminder, createReminder, updateReminder, deleteReminder };
+module.exports = { listReminders, getReminder, createReminder, updateReminder, snoozeReminder, deleteReminder };

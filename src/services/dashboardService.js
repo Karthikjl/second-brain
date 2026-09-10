@@ -31,6 +31,7 @@ function getOverdueTasks(profileId, todayStartISO) {
 
 function getHabitsWithTodayStatus(profileId, timeZone) {
     const today = getLocalDateString(timeZone);
+    const habitService = require('./habitService');
 
     const habits = db.prepare(`
         SELECT * FROM habits
@@ -39,17 +40,34 @@ function getHabitsWithTodayStatus(profileId, timeZone) {
     `).all(profileId);
 
     const logs = db.prepare(`
-        SELECT habit_id FROM habit_logs
-        WHERE profile_id = ? AND log_date = ? AND completed = 1
-    `).all(profileId, today);
+        SELECT habit_id, log_date FROM habit_logs
+        WHERE profile_id = ? AND completed = 1
+    `).all(profileId);
 
-    const completedToday = new Set(logs.map(l => l.habit_id));
+    // Group logs by habit_id
+    const logsByHabit = new Map();
+    for (const log of logs) {
+        if (!logsByHabit.has(log.habit_id)) {
+            logsByHabit.set(log.habit_id, new Set());
+        }
+        logsByHabit.get(log.habit_id).add(log.log_date);
+    }
 
-    return habits.map(habit => ({
-        ...habit,
-        completed_today: completedToday.has(habit.id),
-        today_date: today,
-    }));
+    return habits.map(habit => {
+        const dateSet = logsByHabit.get(habit.id) || new Set();
+        const completedToday = dateSet.has(today);
+        const streak = habitService.computeStreakForDates(dateSet, habit.target_per_week, timeZone, 1);
+        const weeklyCount = habitService.weeklyCountForDates(dateSet, timeZone, 1);
+
+        return {
+            ...habit,
+            today_completed: completedToday,
+            completed_today: completedToday,
+            today_date: today,
+            current_streak: streak,
+            weekly_count: weeklyCount,
+        };
+    });
 }
 
 function getRemindersForRange(profileId, start, end) {

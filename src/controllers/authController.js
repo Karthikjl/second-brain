@@ -244,7 +244,27 @@ async function changePassword(req, res) {
     await authService.updatePassword(req.userId, newPasswordHash);
     await authService.revokeAllRefreshTokensForUser(req.userId);
 
-    return res.status(200).json({ message: 'Password changed. Please log in again.' });
+    const updatedUser = await authService.findUserById(req.userId);
+    const profile = await authService.findDefaultProfileForUser(req.userId);
+
+    const tokens = await issueTokenPair({
+      user: updatedUser,
+      profileId: profile?.id || req.profileId,
+    });
+
+    return res.status(200).json({
+      message: 'Password updated successfully.',
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        must_reset_password: false,
+      },
+      profile: profile ? { id: profile.id, name: profile.name } : null,
+      ...tokens,
+    });
   } catch (err) {
     console.error('Change password error:', err);
     return res.status(500).json({ error: 'Something went wrong. Please try again.' });

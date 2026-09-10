@@ -1,0 +1,270 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --sb-font-heading: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --sb-font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --sb-font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+    /* Base Palette (Light Mode) */
+    --sb-bg: #FAF7EE;
+    --sb-surface: #FFFFFF;
+    --sb-surface-alt: #F2EDE2;
+    --sb-ink: #121212;
+    --sb-muted: #5A5A58;
+    --sb-border: #121212;
+    --sb-border-light: #DDD6C6;
+    --sb-shadow-color: #121212;
+
+    /* Neo Accents */
+    --sb-primary: #FFE600;
+    --sb-primary-hover: #FFD000;
+    --sb-primary-ink: #121212;
+
+    --sb-alert: #FF5252;
+    --sb-alert-hover: #FF3838;
+    --sb-alert-surface: #FFEAE8;
+
+    --sb-ok: #10B981;
+    --sb-ok-hover: #059669;
+    --sb-ok-surface: #E6F8F0;
+
+    --sb-accent-cyan: #38BDF8;
+    --sb-accent-cyan-surface: #E0F5FE;
+
+    --sb-accent-purple: #C084FC;
+    --sb-accent-purple-surface: #F5EEFF;
+
+    --sb-accent-lime: #A3E635;
+    --sb-accent-lime-surface: #F3FDE8;
+
+    --sb-accent-orange: #FB923C;
+    --sb-accent-orange-surface: #FFF0E5;
+
+    --sb-accent-pink: #F472B6;
+    --sb-accent-pink-surface: #FDE8F2;
+
+    /* Neo Tokens */
+    --sb-radius-sm: 4px;
+    --sb-radius: 6px;
+    --sb-radius-lg: 10px;
+    --sb-radius-pill: 9999px;
+
+    --sb-border-width: 2px;
+    --sb-border-width-lg: 2.5px;
+
+    --sb-shadow-sm: 2px 2px 0px var(--sb-shadow-color);
+    --sb-shadow: 4px 4px 0px var(--sb-shadow-color);
+    --sb-shadow-lg: 6px 6px 0px var(--sb-shadow-color);
+    --sb-shadow-modal: 8px 8px 0px var(--sb-shadow-color);
+    color-scheme: light;
+  }
+
+  [data-theme="dark"] {
+    color-scheme: dark;
+    /* Base Palette (Dark Mode) */
+    --sb-bg: #0E0E12;
+    --sb-surface: #16161C;
+    --sb-surface-alt: #1E1E26;
+    --sb-ink: #F5F5FA;
+    --sb-muted: #9292A6;
+    --sb-border: #2E2E3A;
+    --sb-border-light: #22222C;
+    --sb-shadow-color: #000000;
+
+    /* Neo Accents (Dark Mode) */
+    --sb-primary: #FFE600;
+    --sb-primary-hover: #FFD200;
+    --sb-primary-ink: #121212;
+
+    --sb-alert: #FF5A5A;
+    --sb-alert-hover: #FF7070;
+    --sb-alert-surface: #2A1517;
+
+    --sb-ok: #34D399;
+    --sb-ok-hover: #4ADE80;
+    --sb-ok-surface: #11281E;
+
+    --sb-accent-cyan: #38BDF8;
+    --sb-accent-cyan-surface: #10293D;
+
+    --sb-accent-purple: #C084FC;
+    --sb-accent-purple-surface: #291B3A;
+
+    --sb-accent-lime: #A3E635;
+    --sb-accent-lime-surface: #223010;
+
+    --sb-accent-orange: #FB923C;
+    --sb-accent-orange-surface: #2E1C12;
+
+    --sb-accent-pink: #F472B6;
+    --sb-accent-pink-surface: #2E1424;
+  }
+
+  body {
+    background-color: var(--sb-bg);
+    color: var(--sb-ink);
+    font-family: var(--sb-font-body);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--sb-font-heading);
+    font-weight: 700;
+  }
+}
+
+/* Neo-Brutalist Utility Classes */
+.neo-box {
+  background-color: var(--sb-surface);
+  border: var(--sb-border-width) solid var(--sb-border);
+  box-shadow: var(--sb-shadow);
+  border-radius: var(--sb-radius);
+  transition: all 0.15s ease;
+}
+
+.neo-box-sm {
+  background-color: var(--sb-surface);
+  border: var(--sb-border-width) solid var(--sb-border);
+  box-shadow: var(--sb-shadow-sm);
+  border-radius: var(--sb-radius-sm);
+}
+
+.neo-box-lg {
+  background-color: var(--sb-surface);
+  border: var(--sb-border-width-lg) solid var(--sb-border);
+  box-shadow: var(--sb-shadow-lg);
+  border-radius: var(--sb-radius-lg);
+}
+
+.neo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--sb-font-heading);
+  font-weight: 700;
+  border: var(--sb-border-width) solid var(--sb-border);
+  box-shadow: var(--sb-shadow-sm);
+  border-radius: var(--sb-radius);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.15s ease;
+  user-select: none;
+}
+
+.neo-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--sb-shadow);
+}
+
+.neo-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px var(--sb-shadow-color);
+}
+
+.neo-btn-primary {
+  background-color: var(--sb-primary);
+  color: var(--sb-primary-ink);
+}
+.neo-btn-primary:hover {
+  background-color: var(--sb-primary-hover);
+}
+
+.neo-btn-danger {
+  background-color: var(--sb-alert);
+  color: #FFFFFF;
+}
+.neo-btn-danger:hover {
+  background-color: var(--sb-alert-hover);
+}
+
+.neo-btn-outline {
+  background-color: var(--sb-surface);
+  color: var(--sb-ink);
+}
+.neo-btn-outline:hover {
+  background-color: var(--sb-surface-alt);
+}
+
+.neo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--sb-font-mono);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--sb-radius-sm);
+  border: 1.5px solid var(--sb-border);
+  box-shadow: 1px 1px 0px var(--sb-shadow-color);
+}
+
+.neo-input {
+  width: 100%;
+  background-color: var(--sb-surface);
+  color: var(--sb-ink);
+  border: var(--sb-border-width) solid var(--sb-border);
+  box-shadow: var(--sb-shadow-sm);
+  border-radius: var(--sb-radius);
+  padding: 0.55rem 0.85rem;
+  font-family: var(--sb-font-body);
+  font-size: 0.875rem;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.neo-input.pl-9,
+.neo-input.has-icon-left {
+  padding-left: 2.5rem !important;
+}
+
+.neo-input.has-icon-right {
+  padding-right: 2.5rem !important;
+}
+
+
+.neo-input:focus {
+  outline: none;
+  box-shadow: var(--sb-shadow);
+  border-color: var(--sb-border);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--sb-surface-alt);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--sb-muted);
+  border-radius: 4px;
+}
+
+/* Skeleton Loading Shimmer */
+@keyframes neo-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.neo-skeleton {
+  background-color: var(--sb-surface-alt);
+  border: 1.5px solid var(--sb-border-light);
+  border-radius: var(--sb-radius);
+  animation: neo-pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.neo-skeleton-line {
+  background-color: var(--sb-muted);
+  opacity: 0.25;
+  border-radius: 4px;
+}
