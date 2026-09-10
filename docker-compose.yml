@@ -7,15 +7,19 @@ services:
     container_name: second-brain
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:3000"
+    env_file:
+      - path: .env
+        required: false
     environment:
       - PORT=3000
       - NODE_ENV=production
       - DB_CLIENT=sqlite
       - SQLITE_DB_PATH=/app/db/second_brain.sqlite
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-second_brain_super_secret_jwt_access_key_min_64_characters_long_12345}
-      - JWT_ACCESS_EXPIRES_IN=15m
-      - JWT_REFRESH_EXPIRES_IN_DAYS=30
+      - JWT_ACCESS_EXPIRES_IN=${JWT_ACCESS_EXPIRES_IN:-15m}
+      - JWT_REFRESH_EXPIRES_IN_DAYS=${JWT_REFRESH_EXPIRES_IN_DAYS:-30}
     volumes:
       # Persist SQLite database file across container recreations
       - ./db:/app/db
+
