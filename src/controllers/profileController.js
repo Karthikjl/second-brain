@@ -1,5 +1,6 @@
 const profileService = require('../services/profileService');
 const settingsService = require('../services/settingsService');
+const authService = require('../services/authService');
 const { issueTokenPair } = require('./authController');
 
 const MAX_PROFILES_PER_USER = 5;
@@ -51,7 +52,12 @@ async function selectProfile(req, res) {
             return res.status(404).json({ error: 'Profile not found.' });
         }
 
-        const tokens = await issueTokenPair({ userId: req.userId, profileId: profile.id });
+        const user = await authService.findUserById(req.userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const tokens = await issueTokenPair({ user, profileId: profile.id });
 
         return res.status(200).json({ profile, ...tokens });
     } catch (err) {

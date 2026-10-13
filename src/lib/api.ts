@@ -18,6 +18,7 @@ export function setTokens(accessToken: string, refreshToken: string) {
   if (typeof window === 'undefined') return;
   localStorage.setItem('accessToken', accessToken);
   localStorage.setItem('refreshToken', refreshToken);
+  document.cookie = `accessToken=${encodeURIComponent(accessToken)}; path=/; SameSite=Strict`;
 }
 
 export function clearTokens() {
@@ -26,6 +27,7 @@ export function clearTokens() {
   localStorage.removeItem('refreshToken');
   localStorage.removeItem('sb_cached_settings');
   localStorage.removeItem('sb_cached_profiles');
+  document.cookie = 'accessToken=; path=/; max-age=0; SameSite=Strict';
 }
 
 export async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {

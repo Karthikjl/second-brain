@@ -95,8 +95,8 @@ export default function LoginPage() {
       return;
     }
 
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters long.');
+    if (password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+      setError('Password must be at least 8 characters long and contain both letters and numbers.');
       return;
     }
 

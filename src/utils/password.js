@@ -10,4 +10,17 @@ async function comparePassword(plainPassword, hash) {
   return bcrypt.compare(plainPassword, hash);
 }
 
-module.exports = { hashPassword, comparePassword };
+function validatePasswordStrength(password) {
+  if (!password || typeof password !== 'string') {
+    return { valid: false, message: 'Password is required.' };
+  }
+  if (password.length < 8) {
+    return { valid: false, message: 'Password must be at least 8 characters long.' };
+  }
+  if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+    return { valid: false, message: 'Password must contain at least one letter and one number.' };
+  }
+  return { valid: true };
+}
+
+module.exports = { hashPassword, comparePassword, validatePasswordStrength };

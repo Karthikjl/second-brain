@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 import { Copy, Check } from 'lucide-react';
 
 interface MarkdownRendererProps {
@@ -21,7 +22,11 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
   const parsedHtml = useMemo(() => {
     if (!content) return '';
     try {
-      return marked.parse(content) as string;
+      const rawHtml = marked.parse(content) as string;
+      if (typeof window !== 'undefined') {
+        return DOMPurify.sanitize(rawHtml);
+      }
+      return rawHtml;
     } catch (err) {
       return content;
     }

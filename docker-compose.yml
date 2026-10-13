@@ -7,7 +7,7 @@ services:
     container_name: second-brain
     restart: unless-stopped
     ports:
-      - "${PORT:-3000}:3000"
+      - "${HOST_PORT:-${PORT:-3000}}:3000"
     env_file:
       - path: .env
         required: false
@@ -20,6 +20,6 @@ services:
       - JWT_ACCESS_EXPIRES_IN=${JWT_ACCESS_EXPIRES_IN:-15m}
       - JWT_REFRESH_EXPIRES_IN_DAYS=${JWT_REFRESH_EXPIRES_IN_DAYS:-30}
     volumes:
-      # Persist SQLite database file across container recreations
-      - ./db:/app/db
+      # Host directory where SQLite database file is stored on your server
+      - "${SQLITE_HOST_DIR:-./db}:/app/db"
 

@@ -1,6 +1,7 @@
 const adminService = require('../services/adminService');
 const authService = require('../services/authService');
 const { issueTokenPair } = require('./authController');
+const { validatePasswordStrength } = require('../utils/password');
 
 async function getSettings(req, res) {
     try {
@@ -53,8 +54,9 @@ async function createUser(req, res) {
     if (!email || !password) {
         return res.status(400).json({ error: 'Email and password are required.' });
     }
-    if (password.length < 8) {
-        return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+    const passCheck = validatePasswordStrength(password);
+    if (!passCheck.valid) {
+        return res.status(400).json({ error: passCheck.message });
     }
 
     try {
@@ -89,8 +91,9 @@ async function resetPassword(req, res) {
     const { id } = req.params;
     const newPassword = (req.body?.newPassword || req.body?.tempPassword || req.body?.password || '').trim();
 
-    if (!newPassword || newPassword.length < 8) {
-        return res.status(400).json({ error: 'New password must be at least 8 characters.' });
+    const passCheck = validatePasswordStrength(newPassword);
+    if (!passCheck.valid) {
+        return res.status(400).json({ error: passCheck.message });
     }
 
     try {

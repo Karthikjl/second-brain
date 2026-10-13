@@ -8,6 +8,7 @@ node_modules/
 out/
 build/
 dist/
+*.tsbuildinfo
 
 # Environment variables
 .env
@@ -27,6 +28,8 @@ db/*.sqlite-shm
 db/*.db
 db/*.db-wal
 db/*.db-shm
+*.bak
+db/*.bak
 
 # Logs
 logs/

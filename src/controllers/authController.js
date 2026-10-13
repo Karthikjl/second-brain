@@ -1,7 +1,7 @@
 const authService = require('../services/authService');
 const settingsService = require('../services/settingsService');
 const adminService = require('../services/adminService');
-const { hashPassword, comparePassword } = require('../utils/password');
+const { hashPassword, comparePassword, validatePasswordStrength } = require('../utils/password');
 const { signAccessToken } = require('../utils/jwt');
 const { generateRefreshToken, hashRefreshToken } = require('../utils/refreshToken');
 const config = require('../config/env');
@@ -50,8 +50,9 @@ async function signup(req, res) {
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required.' });
   }
-  if (password.length < 8) {
-    return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+  const passCheck = validatePasswordStrength(password);
+  if (!passCheck.valid) {
+    return res.status(400).json({ error: passCheck.message });
   }
 
   try {
@@ -225,8 +226,9 @@ async function changePassword(req, res) {
   if (!currentPassword || !newPassword) {
     return res.status(400).json({ error: 'Current password and new password are required.' });
   }
-  if (newPassword.length < 8) {
-    return res.status(400).json({ error: 'New password must be at least 8 characters.' });
+  const passCheck = validatePasswordStrength(newPassword);
+  if (!passCheck.valid) {
+    return res.status(400).json({ error: passCheck.message });
   }
 
   try {
