@@ -1,0 +1,15 @@
+# Apply everything with:  kubectl apply -k deploy/k3s
+# The "second-brain-secrets" Secret must be created first (see README.md).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: second-brain
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - pvc.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+images:
+  - name: second-brain
+    newTag: "1.0.0"

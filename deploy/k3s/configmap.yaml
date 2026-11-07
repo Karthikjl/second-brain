@@ -1,0 +1,17 @@
+# Non-secret runtime settings. Secrets (JWT key) live in the "second-brain-secrets" Secret,
+# which is NOT stored in git — see deploy/k3s/README.md.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: second-brain-config
+  labels:
+    app.kubernetes.io/name: second-brain
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  HOSTNAME: "0.0.0.0"
+  DB_CLIENT: "sqlite"
+  SQLITE_DB_PATH: "/app/db/second_brain.sqlite"
+  JWT_ACCESS_EXPIRES_IN: "15m"
+  JWT_REFRESH_EXPIRES_IN_DAYS: "30"
+  NEXT_TELEMETRY_DISABLED: "1"

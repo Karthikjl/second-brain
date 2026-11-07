@@ -1,0 +1,21 @@
+# k3s ships Traefik as its ingress controller. Change the host to your domain.
+# For HTTPS, add a "tls:" section with a certificate Secret (e.g. issued by cert-manager).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: second-brain
+  labels:
+    app.kubernetes.io/name: second-brain
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: second-brain.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: second-brain
+                port:
+                  name: http

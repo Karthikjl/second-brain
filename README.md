@@ -130,6 +130,21 @@ docker compose exec app sqlite3 /app/db/second_brain.sqlite ".backup '/app/db/ba
 
 ---
 
+## ☸️ Deploying on k3s / Kubernetes
+
+Ready-to-apply manifests (namespace, config, persistent SQLite volume, deployment, service,
+and Traefik ingress) are in [`deploy/k3s/`](deploy/k3s/). See
+[`deploy/k3s/README.md`](deploy/k3s/README.md) for build, image import, secret creation, and
+backup steps.
+
+```bash
+kubectl -n second-brain create secret generic second-brain-secrets \
+  --from-literal=JWT_ACCESS_SECRET="$(openssl rand -hex 64)"
+kubectl apply -k deploy/k3s
+```
+
+---
+
 ## 💻 Local Development & Bare-Metal Setup (npm)
 
 ### Prerequisites

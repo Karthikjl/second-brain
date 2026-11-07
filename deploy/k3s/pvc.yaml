@@ -1,0 +1,16 @@
+# SQLite data volume. k3s ships the "local-path" provisioner, which stores data on the
+# node's disk (/var/lib/rancher/k3s/storage). SQLite needs a local, POSIX-locking disk:
+# do not switch this to NFS/SMB-backed storage.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: second-brain-data
+  labels:
+    app.kubernetes.io/name: second-brain
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 2Gi
