@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Menu, Plus, Bot, Moon, Sun } from 'lucide-react';
+import { switchTheme } from '@/lib/theme-transition';
 
 interface HeaderProps {
   title?: string;
@@ -31,12 +32,9 @@ export function Header({
     return () => window.removeEventListener('theme-change', handleThemeChange);
   }, []);
 
-  function toggleTheme() {
+  function toggleTheme(e: React.MouseEvent<HTMLButtonElement>) {
     const next = theme === 'light' ? 'dark' : 'light';
-    setTheme(next);
-    localStorage.setItem('theme', next);
-    document.documentElement.setAttribute('data-theme', next);
-    window.dispatchEvent(new Event('theme-change'));
+    switchTheme(next, e.currentTarget, () => setTheme(next));
   }
 
   return (

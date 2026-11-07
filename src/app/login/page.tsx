@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiFetch, setTokens, getAccessToken } from '@/lib/api';
+import { switchTheme } from '@/lib/theme-transition';
 import { Lock, Mail, User, Shield, ArrowRight, CheckCircle2, Moon, Sun, Info } from 'lucide-react';
 
 import { NeoInput } from '@/components/NeoInput';
@@ -52,11 +53,9 @@ export default function LoginPage() {
     checkSetup();
   }, [router]);
 
-  function toggleTheme() {
+  function toggleTheme(e: React.MouseEvent<HTMLButtonElement>) {
     const next = theme === 'light' ? 'dark' : 'light';
-    setTheme(next);
-    localStorage.setItem('theme', next);
-    document.documentElement.setAttribute('data-theme', next);
+    switchTheme(next, e.currentTarget, () => setTheme(next));
   }
 
   async function handleAuthSuccess(data: any) {

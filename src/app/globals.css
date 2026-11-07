@@ -246,6 +246,21 @@
   border-radius: 4px;
 }
 
+/* Theme switch: circular reveal (see src/lib/theme-transition.ts).
+   Disable the default cross-fade so only the clip-path circle animates. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  z-index: 1;
+}
+.theme-switching,
+.theme-switching * {
+  transition: none !important;
+}
+
 /* Skeleton Loading Shimmer */
 @keyframes neo-pulse {
   0%, 100% {
