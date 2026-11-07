@@ -1,6 +1,25 @@
-# SQLite data volume. k3s ships the "local-path" provisioner, which stores data on the
-# node's disk (/var/lib/rancher/k3s/storage). SQLite needs a local, POSIX-locking disk:
-# do not switch this to NFS/SMB-backed storage.
+# SQLite data volume: a static hostPath PersistentVolume on the node's local disk.
+# Change the path below to wherever you want the database to live, or let deploy.sh
+# set it for you (DATA_DIR=/your/path ./deploy/k3s/deploy.sh <domain>).
+# SQLite needs a local, POSIX-locking disk: do not point this at NFS/SMB-backed storage.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: second-brain-data
+  labels:
+    app.kubernetes.io/name: second-brain
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  # Retain: deleting the claim or namespace never deletes your database.
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: /var/lib/second-brain/data
+    type: DirectoryOrCreate
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -10,7 +29,8 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: local-path
+  storageClassName: manual
+  volumeName: second-brain-data
   resources:
     requests:
       storage: 2Gi

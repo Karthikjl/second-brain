@@ -9,7 +9,6 @@ resources:
   - pvc.yaml
   - deployment.yaml
   - service.yaml
-  - ingress.yaml
 images:
   - name: second-brain
     newTag: "1.0.0"
