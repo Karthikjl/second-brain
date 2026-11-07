@@ -30,6 +30,22 @@ const config = {
         }
         return 'default_jwt_access_secret_development_key_123456789';
       }
+      if (nodeEnv === 'production') {
+        // Placeholder secrets published in this repo (README, .env.example, old docker-compose)
+        // must never be accepted: anyone could forge admin tokens with them.
+        const knownPublicSecrets = [
+          'your_super_secret_jwt_access_key_min_64_characters_long_123456789',
+          'second_brain_super_secret_jwt_access_key_min_64_characters_long_12345',
+          'your_secure_64_character_random_hex_key',
+          'default_jwt_access_secret_development_key_123456789',
+        ];
+        if (knownPublicSecrets.includes(secret)) {
+          throw new Error('FATAL SECURITY ERROR: JWT_ACCESS_SECRET is a public placeholder value. Generate a random secret.');
+        }
+        if (secret.length < 32) {
+          throw new Error('FATAL SECURITY ERROR: JWT_ACCESS_SECRET must be at least 32 characters long.');
+        }
+      }
       return secret;
     })(),
     accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',

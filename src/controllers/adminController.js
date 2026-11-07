@@ -79,7 +79,7 @@ async function createUser(req, res) {
 async function updateUser(req, res) {
     const { id } = req.params;
     try {
-        const updated = adminService.adminUpdateUser(id, req.body);
+        const updated = adminService.adminUpdateUser(id, req.body, req.userId);
         return res.status(200).json({ user: updated });
     } catch (err) {
         console.error('updateUser error:', err);
@@ -97,7 +97,7 @@ async function resetPassword(req, res) {
     }
 
     try {
-        await adminService.adminResetPassword(id, newPassword);
+        await adminService.adminResetPassword(id, newPassword, req.userId);
         return res.status(200).json({ message: 'User password reset successfully.' });
     } catch (err) {
         console.error('resetPassword error:', err);
@@ -122,6 +122,12 @@ async function impersonateUser(req, res) {
         const targetUser = await authService.findUserById(id);
         if (!targetUser) {
             return res.status(404).json({ error: 'Target user not found.' });
+        }
+
+        // Impersonating an admin would hand out admin power (and the Primary
+        // Super Admin's account) to any other admin.
+        if (targetUser.role === 'ADMIN' || adminService.isPrimaryAdmin(targetUser.id)) {
+            return res.status(403).json({ error: 'Admin accounts cannot be impersonated.' });
         }
 
         const profile = await authService.findDefaultProfileForUser(targetUser.id);

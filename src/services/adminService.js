@@ -148,11 +148,19 @@ function recordFailedLogin(identifier, ip) {
 function resetLoginAttempts(identifier) {
     if (!identifier) return;
     const cleanIdentifier = identifier.trim().toLowerCase();
+    // Exact match only: a substring/LIKE match let one user's successful login
+    // clear the brute-force lockout of every account containing their identifier.
     const stmt = db.prepare(`
         DELETE FROM login_attempts
-        WHERE LOWER(identifier) = ? OR LOWER(identifier) LIKE ?
+        WHERE LOWER(identifier) = ?
     `);
-    stmt.run(cleanIdentifier, `%${cleanIdentifier}%`);
+    stmt.run(cleanIdentifier);
+}
+
+function isPrimaryAdmin(userId) {
+    if (!userId) return false;
+    const firstUser = db.prepare('SELECT id FROM users ORDER BY created_at ASC LIMIT 1').get();
+    return Boolean(firstUser && firstUser.id === userId);
 }
 
 
@@ -284,12 +292,22 @@ async function adminCreateUser({ name, username, email, password, role = 'USER',
     };
 }
 
-function adminUpdateUser(userId, fields) {
+function adminUpdateUser(userId, fields, actingUserId) {
     const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
     if (!user) throw new Error('User not found.');
 
-    const firstUser = db.prepare('SELECT id FROM users ORDER BY created_at ASC LIMIT 1').get();
-    const isFirstUser = firstUser && firstUser.id === userId;
+    const isFirstUser = isPrimaryAdmin(userId);
+
+    // Only the Primary Super Admin may change their own login identity / reset flag.
+    if (isFirstUser && actingUserId !== userId) {
+        const touchesIdentity =
+            (fields.email !== undefined && fields.email.trim().toLowerCase() !== user.email) ||
+            (fields.username !== undefined && fields.username.trim().toLowerCase() !== user.username) ||
+            (fields.must_reset_password !== undefined && Boolean(fields.must_reset_password) !== Boolean(user.must_reset_password));
+        if (touchesIdentity) {
+            throw new Error('Only the Primary Super Admin can change their own email, username, or reset flag.');
+        }
+    }
 
     let newRole = fields.role !== undefined ? fields.role : user.role;
     let newStatus = fields.status !== undefined ? fields.status : user.status;
@@ -336,9 +354,13 @@ function adminUpdateUser(userId, fields) {
     };
 }
 
-async function adminResetPassword(userId, newPassword) {
+async function adminResetPassword(userId, newPassword, actingUserId) {
     const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
     if (!user) throw new Error('User not found.');
+
+    if (isPrimaryAdmin(userId) && actingUserId !== userId) {
+        throw new Error('The Primary Super Admin password cannot be reset by another admin.');
+    }
 
     const newHash = await hashPassword(newPassword);
     const stmt = db.prepare(`
@@ -372,6 +394,7 @@ module.exports = {
     checkRateLimit,
     recordFailedLogin,
     resetLoginAttempts,
+    isPrimaryAdmin,
     getLockedAccounts,
     getAllUsers,
     adminCreateUser,

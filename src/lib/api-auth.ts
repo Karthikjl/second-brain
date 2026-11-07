@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createRequire } from 'module';
 const requireModule = createRequire(import.meta.url);
 const { verifyAccessToken } = requireModule('../utils/jwt');
+const db = requireModule('../config/db');
 
 export interface AuthenticatedUser {
   userId: string;
@@ -74,7 +75,12 @@ export function getAuthUser(req: NextRequest): { user?: AuthenticatedUser; error
 }
 
 export function requireAdmin(user: AuthenticatedUser): NextResponse | null {
-  if (user.userRole !== 'ADMIN') {
+  // Do not trust the role claim alone: re-check the live account so that a forged,
+  // stale (demoted) or deactivated admin token cannot use admin endpoints.
+  const dbUser = user.userId
+    ? db.prepare('SELECT role, status FROM users WHERE id = ?').get(user.userId)
+    : null;
+  if (user.userRole !== 'ADMIN' || !dbUser || dbUser.role !== 'ADMIN' || dbUser.status !== 'active') {
     return NextResponse.json(
       { error: 'Access denied. Admin privileges required.' },
       { status: 403 }
