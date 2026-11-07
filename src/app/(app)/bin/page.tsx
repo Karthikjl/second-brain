@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/api';
 import { useToast } from '@/components/ToastContext';
 import { ConfirmModal } from '@/components/ConfirmModal';
+import { EmptyState } from '@/components/EmptyState';
 import {
   Trash2,
   RotateCcw,
@@ -79,7 +80,7 @@ export default function BinPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 flex-1 flex flex-col">
       {/* Top Header */}
       <div>
         <h1 className="text-2xl font-black text-[var(--sb-ink)] tracking-tight flex items-center gap-2">
@@ -110,11 +111,12 @@ export default function BinPage() {
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="neo-box p-12 text-center bg-[var(--sb-surface)]">
-          <ArchiveRestore className="w-12 h-12 text-[var(--sb-muted)] mx-auto mb-3 opacity-40" />
-          <h3 className="text-base font-bold text-[var(--sb-ink)]">Recycle Bin is Empty</h3>
-          <p className="text-xs text-[var(--sb-muted)] mt-1">No deleted notes, tasks, or habits found.</p>
-        </div>
+        <EmptyState
+          icon={ArchiveRestore}
+          variant="list"
+          title="Recycle Bin is Empty"
+          description="No deleted notes, tasks, or habits found."
+        />
       ) : (
         <div className="space-y-3">
           {items.map((item) => {

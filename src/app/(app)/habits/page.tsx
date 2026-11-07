@@ -5,6 +5,7 @@ import { apiFetch } from '@/lib/api';
 import { useToast } from '@/components/ToastContext';
 import { HabitModal, HabitItem } from '@/components/HabitModal';
 import { ConfirmModal } from '@/components/ConfirmModal';
+import { EmptyState } from '@/components/EmptyState';
 import {
   Flame,
   Plus,
@@ -87,7 +88,7 @@ export default function HabitsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 flex-1 flex flex-col">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -131,13 +132,17 @@ export default function HabitsPage() {
           ))}
         </div>
       ) : habits.length === 0 ? (
-        <div className="neo-box p-12 text-center bg-[var(--sb-surface)]">
-          <Flame className="w-12 h-12 text-[var(--sb-muted)] mx-auto mb-3 opacity-50" />
-          <h3 className="text-base font-bold text-[var(--sb-ink)]">No habits created yet</h3>
-          <p className="text-xs text-[var(--sb-muted)] mt-1 max-w-sm mx-auto">
-            Form life-changing habits! Click "+ New Habit" to track your first daily goal.
-          </p>
-        </div>
+        <EmptyState
+          icon={Flame}
+          variant="habit"
+          title="No habits created yet"
+          description="Form life-changing habits and track your first weekly goal."
+          actionLabel="New Habit"
+          onAction={() => {
+            setEditingHabit(null);
+            setModalOpen(true);
+          }}
+        />
       ) : (
         <div className="space-y-4">
           {habits.map((habit) => {

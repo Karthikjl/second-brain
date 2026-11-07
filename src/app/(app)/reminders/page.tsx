@@ -5,6 +5,7 @@ import { apiFetch } from '@/lib/api';
 import { useToast } from '@/components/ToastContext';
 import { ReminderModal, ReminderItem } from '@/components/ReminderModal';
 import { ConfirmModal } from '@/components/ConfirmModal';
+import { EmptyState } from '@/components/EmptyState';
 import {
   Bell,
   Plus,
@@ -87,7 +88,7 @@ export default function RemindersPage() {
   const completedReminders = reminders.filter((r) => Boolean(r.is_done));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 flex-1 flex flex-col">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -129,9 +130,9 @@ export default function RemindersPage() {
           ))}
         </div>
       ) : (
-        <div className="space-y-8">
-          {/* Active Reminders */}
-          <section className="space-y-3">
+        <div className="space-y-8 flex-1 flex flex-col">
+          {/* Active Reminders — when there are no completed ones below, the empty state fills the screen */}
+          <section className={`space-y-3 ${completedReminders.length === 0 ? 'flex-1 flex flex-col' : ''}`}>
             <h2 className="text-sm font-black uppercase tracking-wider text-[var(--sb-ink)] flex items-center gap-2">
               <span>Active Reminders</span>
               <span className="neo-badge bg-[var(--sb-alert-surface)] text-[var(--sb-alert)] text-[10px]">
@@ -139,7 +140,19 @@ export default function RemindersPage() {
               </span>
             </h2>
 
-            {activeReminders.length === 0 ? (
+            {activeReminders.length === 0 && completedReminders.length === 0 ? (
+              <EmptyState
+                icon={Bell}
+                variant="list"
+                title="No active reminders"
+                description="You are all clear! Set a reminder so nothing slips through."
+                actionLabel="New Reminder"
+                onAction={() => {
+                  setEditingReminder(null);
+                  setModalOpen(true);
+                }}
+              />
+            ) : activeReminders.length === 0 ? (
               <div className="neo-box p-8 text-center bg-[var(--sb-surface)]">
                 <Bell className="w-10 h-10 text-[var(--sb-muted)] mx-auto mb-2 opacity-40" />
                 <p className="text-xs font-bold text-[var(--sb-muted)]">No active reminders. You are all clear!</p>

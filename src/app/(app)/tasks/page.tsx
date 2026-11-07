@@ -20,6 +20,7 @@ import {
 
 import { NeoInput } from '@/components/NeoInput';
 import { NeoSelect } from '@/components/NeoSelect';
+import { EmptyState } from '@/components/EmptyState';
 
 export default function TasksPage() {
   const { showToast } = useToast();
@@ -105,7 +106,7 @@ export default function TasksPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 flex-1 flex flex-col">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -190,13 +191,17 @@ export default function TasksPage() {
           ))}
         </div>
       ) : filteredTasks.length === 0 ? (
-        <div className="neo-box p-12 text-center bg-[var(--sb-surface)]">
-          <CheckCircle2 className="w-12 h-12 text-[var(--sb-muted)] mx-auto mb-3 opacity-50" />
-          <h3 className="text-base font-bold text-[var(--sb-ink)]">No tasks found</h3>
-          <p className="text-xs text-[var(--sb-muted)] mt-1 max-w-sm mx-auto">
-            {searchQuery ? 'No tasks match your search query.' : 'You have no tasks matching this filter. Click "+ New Task" to add one!'}
-          </p>
-        </div>
+        <EmptyState
+          icon={CheckCircle2}
+          variant="list"
+          title="No tasks found"
+          description={searchQuery ? 'No tasks match your search query.' : 'You have no tasks matching this filter yet.'}
+          actionLabel="New Task"
+          onAction={() => {
+            setEditingTask(null);
+            setModalOpen(true);
+          }}
+        />
       ) : (
         <div className="space-y-3">
           {filteredTasks.map((task) => (

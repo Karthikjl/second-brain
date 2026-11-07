@@ -65,7 +65,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             onQuickCreateNote={() => setQuickNoteOpen(true)}
           />
 
-          <main className="flex-1 p-4 md:p-6 max-w-7xl w-full mx-auto">
+          {/* flex column so a page root with flex-1 can stretch to the bottom of the viewport */}
+          <main className="flex-1 flex flex-col p-4 md:p-6 max-w-7xl w-full mx-auto">
             {children}
           </main>
         </div>

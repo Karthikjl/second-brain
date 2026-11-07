@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 
 import { NeoInput } from '@/components/NeoInput';
+import { EmptyState } from '@/components/EmptyState';
 
 export default function NotesPage() {
   const { showToast } = useToast();
@@ -111,7 +112,7 @@ export default function NotesPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 flex-1 flex flex-col">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -199,13 +200,17 @@ export default function NotesPage() {
           ))}
         </div>
       ) : filteredNotes.length === 0 ? (
-        <div className="neo-box p-12 text-center bg-[var(--sb-surface)]">
-          <StickyNote className="w-12 h-12 text-[var(--sb-muted)] mx-auto mb-3 opacity-50" />
-          <h3 className="text-base font-bold text-[var(--sb-ink)]">No notes found</h3>
-          <p className="text-xs text-[var(--sb-muted)] mt-1 max-w-sm mx-auto">
-            {searchQuery ? 'No notes match your search.' : 'Capture your first note by clicking "+ New Note"!'}
-          </p>
-        </div>
+        <EmptyState
+          icon={StickyNote}
+          variant="grid"
+          title="No notes found"
+          description={searchQuery ? 'No notes match your search.' : 'Capture your first thought, snippet or meeting note.'}
+          actionLabel="New Note"
+          onAction={() => {
+            setEditingNote(null);
+            setModalOpen(true);
+          }}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredNotes.map((note) => {
