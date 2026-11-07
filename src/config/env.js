@@ -23,6 +23,12 @@ const config = {
 
   jwt: {
     accessSecret: (() => {
+      // `next build` loads API route modules to collect page data, with NODE_ENV=production
+      // but no runtime secrets. Use a random throwaway key for that build process only; it
+      // never signs real tokens and the running server still enforces the checks below.
+      if (process.env.NEXT_PHASE === 'phase-production-build') {
+        return require('crypto').randomBytes(32).toString('hex');
+      }
       const secret = process.env.JWT_ACCESS_SECRET;
       if (!secret) {
         if (nodeEnv === 'production') {
